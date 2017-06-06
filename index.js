@@ -43,7 +43,7 @@ app.post('/vote', function(req, res) {
     return
   }
 
-  client.incr((vote === 1 ? 'good-' : 'bad-') + key, function(err) {
+  client.hincrby('opinion-tracker', (vote === 1 ? 'good-' : 'bad-') + key, 1, function(err) {
     if(err) {
       console.warn(err);
       res.send(500, err.toString())
@@ -54,6 +54,22 @@ app.post('/vote', function(req, res) {
     res.send('Vote saved: ' + vote)
   })
 })
+
+app.get('/vote', function(req, res) {
+  if(req.query.key !== process.env.KEY) {
+    res.send(409, 'Missing key')
+    return
+  }
+
+  client.hgetall('opinion-tracker', function(err, keys) {
+    if(err) {
+      console.warn(err);
+      res.send(500, err.toString())
+    }
+
+    res.send(keys)
+  })
+});
 
 const port = process.env.PORT || 3000
 app.listen(port, function() {
