@@ -48,7 +48,10 @@ app.post('/vote', function(req, res) {
       console.warn(err);
       res.send(500, err.toString())
     }
-    res.send('Vote saved')
+
+    console.log("key=" + key + " vote=" + vote)
+
+    res.send('Vote saved: ' + vote)
   })
 })
 
