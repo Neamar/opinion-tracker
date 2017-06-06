@@ -5,12 +5,26 @@ const express = require('express')
 const redis = require('redis')
 const bodyParser = require('body-parser')
 const app = express()
+const RateLimit = require('express-rate-limit');
 
 const client = redis.createClient(process.env.REDIS_URL || 'redis://localhost')
 
+// Rate limit
+app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+
+var limiter = new RateLimit({
+  windowMs: 500,
+  max: 1, // limit each IP to 1 request per windowMs
+  delayMs: 0 // disable delaying - full speed until the max limit is reached
+});
+app.use(limiter);
+
+// Body parsing
 app.use(bodyParser.json());       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded()); // to support URL-encoded bodies
 
+
+// Actual code
 app.post('/vote', function(req, res) {
   if(!req.body.key) {
     res.send(409, 'Missing key')
