@@ -1,0 +1,13 @@
+version: "3"
+services:
+
+  web:
+    build: .
+    container_name: web
+    ports:
+      - "3000:8080"
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports: ["6379"]
